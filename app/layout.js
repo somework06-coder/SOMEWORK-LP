@@ -13,14 +13,53 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
-export const metadata = {
-  title: "Somework - Meta Ads & AI Builder",
-  description: "Meta Ads marketer yang suka ngoding & bikin tools pake AI. Resource praktis soal Facebook Ads, automation, dan internal tools.",
-};
+import { supabase } from "@/lib/supabase";
+
+export async function generateMetadata() {
+  const { data } = await supabase.from("site_config").select("*");
+  const settings = {};
+
+  if (data) {
+    data.forEach((item) => {
+      settings[item.key] = item.value;
+    });
+  }
+
+  const title = settings.hero_name
+    ? `${settings.hero_name} - Meta Ads & AI Builder`
+    : "Somework - Meta Ads & AI Builder";
+
+  const description = settings.hero_tagline || "Meta Ads marketer yang suka ngoding & bikin tools pake AI.";
+
+  return {
+    title: title,
+    description: description,
+    icons: {
+      icon: '/logo.png',
+      shortcut: '/logo.png',
+      apple: '/logo.png',
+    },
+    openGraph: {
+      title: title,
+      description: description,
+      url: 'https://somework.id', // Bisa diganti domain asli nanti
+      siteName: 'Somework',
+      images: [
+        {
+          url: '/logo.png', // Idealnya gambar OG khusus ukuran 1200x630, tapi logo dulu gapapa
+          width: 800,
+          height: 800,
+        },
+      ],
+      locale: 'id_ID',
+      type: 'website',
+    },
+  };
+}
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" style={{ scrollBehavior: "smooth" }}>
+    <html lang="id" style={{ scrollBehavior: "smooth" }}>
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
         {children}
       </body>
