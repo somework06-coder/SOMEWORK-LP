@@ -4,6 +4,8 @@ import ResourceSection from "./components/ResourceSection";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
 
+export const dynamic = "force-dynamic";
+
 async function getResources() {
   const { data } = await supabase
     .from("resources")
