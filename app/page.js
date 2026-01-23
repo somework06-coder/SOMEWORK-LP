@@ -1,66 +1,77 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { supabase } from "@/lib/supabase";
+import Hero from "./components/Hero";
+import ResourceSection from "./components/ResourceSection";
+import ContactSection from "./components/ContactSection";
+import Footer from "./components/Footer";
 
-export default function Home() {
+async function getResources() {
+  const { data } = await supabase
+    .from("resources")
+    .select("*")
+    .order("created_at", { ascending: true });
+  return data || [];
+}
+
+async function getSettings() {
+  const { data } = await supabase.from("site_config").select("*");
+  const settings = {};
+  if (data) {
+    data.forEach((item) => {
+      settings[item.key] = item.value;
+    });
+  }
+  return settings;
+}
+
+export default async function Home() {
+  const resources = await getResources();
+  const settings = await getSettings();
+
+  const freeResources = resources
+    .filter((r) => r.type === "free")
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      description: r.description,
+      link: r.link,
+      buttonLabel: r.button_label,
+    }));
+
+  const paidResources = resources
+    .filter((r) => r.type === "paid")
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      description: r.description,
+      link: r.link,
+      buttonLabel: r.button_label,
+    }));
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main>
+      <Hero settings={settings} />
+
+      <ResourceSection
+        id="free-resources"
+        title={settings.section_free_title || "Resource Gratis"}
+        subtitle={settings.section_free_subtitle || "Coba dulu. Nilai nanti."}
+        resources={freeResources}
+        altBackground={true}
+      />
+
+      <ResourceSection
+        id="paid-resources"
+        title={settings.section_paid_title || "Resource Berbayar"}
+        subtitle={settings.section_paid_subtitle || "Buat eksekusi yang lebih cepat."}
+        resources={paidResources}
+        altBackground={false}
+      />
+
+      <ContactSection settings={settings} />
+
+      <Footer settings={settings} />
+    </main>
   );
 }
