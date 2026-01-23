@@ -53,21 +53,25 @@ export default async function Home() {
     <main>
       <Hero settings={settings} />
 
-      <ResourceSection
-        id="free-resources"
-        title={settings.section_free_title || "Resource Gratis"}
-        subtitle={settings.section_free_subtitle || "Coba dulu. Nilai nanti."}
-        resources={freeResources}
-        altBackground={true}
-      />
+      {freeResources.length > 0 && (
+        <ResourceSection
+          id="free-resources"
+          title={settings.section_free_title || "Resource Gratis"}
+          subtitle={settings.section_free_subtitle || "Coba dulu. Nilai nanti."}
+          resources={freeResources}
+          altBackground={true}
+        />
+      )}
 
-      <ResourceSection
-        id="paid-resources"
-        title={settings.section_paid_title || "Resource Berbayar"}
-        subtitle={settings.section_paid_subtitle || "Buat eksekusi yang lebih cepat."}
-        resources={paidResources}
-        altBackground={false}
-      />
+      {paidResources.length > 0 && (
+        <ResourceSection
+          id="paid-resources"
+          title={settings.section_paid_title || "Resource Berbayar"}
+          subtitle={settings.section_paid_subtitle || "Buat eksekusi yang lebih cepat."}
+          resources={paidResources}
+          altBackground={false}
+        />
+      )}
 
       <ContactSection settings={settings} />
 

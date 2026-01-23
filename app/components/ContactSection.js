@@ -1,7 +1,8 @@
 export default function ContactSection({ settings = {} }) {
-    const whatsapp = settings.contact_whatsapp || "https://wa.me/628123456789";
-    const email = settings.contact_email || "hello@somework.id";
-    const threads = settings.contact_threads || "https://threads.net/@somework";
+    // Remove hardcoded defaults so buttons hide if settings are empty
+    const whatsapp = settings.contact_whatsapp;
+    const email = settings.contact_email;
+    const threads = settings.contact_threads;
     const title = settings.contact_title || "Kerja Bareng";
     const subtitle = settings.contact_subtitle || "Ngobrol dulu aja.";
 
@@ -23,28 +24,36 @@ export default function ContactSection({ settings = {} }) {
                     </div>
 
                     <div className="contact-buttons">
-                        <a
-                            href={whatsapp}
-                            className="btn btn-primary"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            💬 WhatsApp
-                        </a>
-                        <a
-                            href={`mailto:${email}`}
-                            className="btn btn-secondary"
-                        >
-                            ✉️ Email
-                        </a>
-                        <a
-                            href={threads}
-                            className="btn btn-secondary"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            🧵 Threads
-                        </a>
+                        {whatsapp && (
+                            <a
+                                href={whatsapp}
+                                className="btn btn-primary"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                💬 WhatsApp
+                            </a>
+                        )}
+
+                        {email && (
+                            <a
+                                href={`mailto:${email}`}
+                                className="btn btn-secondary"
+                            >
+                                ✉️ Email
+                            </a>
+                        )}
+
+                        {threads && (
+                            <a
+                                href={threads}
+                                className="btn btn-secondary"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                🧵 Threads
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
