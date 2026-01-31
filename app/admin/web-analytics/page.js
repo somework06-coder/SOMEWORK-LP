@@ -20,7 +20,8 @@ export default function WebAnalyticsPage() {
         totalViews: 0,
         todayViews: 0,
         chartData: [],
-        activeHours: []
+        activeHours: [],
+        topResources: []
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -89,11 +90,31 @@ export default function WebAnalyticsPage() {
                     visitors: count
                 }));
 
+                // Fetch Resource Clicks
+                const { data: clicksData, error: errClicks } = await supabase
+                    .from("resource_clicks")
+                    .select("resource_title");
+
+                let topResourcesData = [];
+                if (!errClicks && clicksData) {
+                    const clickCounts = {};
+                    clicksData.forEach(c => {
+                        const title = c.resource_title || "Unknown";
+                        clickCounts[title] = (clickCounts[title] || 0) + 1;
+                    });
+
+                    topResourcesData = Object.entries(clickCounts)
+                        .map(([name, count]) => ({ name, count }))
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 5); // Take top 5
+                }
+
                 setStats({
                     totalViews: total || 0,
                     todayViews: todayCount || 0,
                     chartData,
-                    activeHours: activeHoursData
+                    activeHours: activeHoursData,
+                    topResources: topResourcesData
                 });
 
             } catch (error) {
@@ -217,6 +238,37 @@ export default function WebAnalyticsPage() {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
+            </div>
+
+            {/* Top Resources Section */}
+            <div style={{ marginTop: '32px' }} className="card">
+                <h3 className="card-title">Top Performing Resources (Most Clicked)</h3>
+                {stats.topResources.length > 0 ? (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid #eee', textAlign: 'left' }}>
+                                <th style={{ padding: '12px 0', fontSize: '0.9rem', color: '#666' }}>Resource Name</th>
+                                <th style={{ padding: '12px 0', fontSize: '0.9rem', color: '#666', textAlign: 'right' }}>Total Clicks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {stats.topResources.map((res, i) => (
+                                <tr key={i} style={{ borderBottom: '1px solid #f9f9f9' }}>
+                                    <td style={{ padding: '12px 0', fontSize: '1rem', fontWeight: 500 }}>
+                                        {i + 1}. {res.name}
+                                    </td>
+                                    <td style={{ padding: '12px 0', fontSize: '1rem', fontWeight: 700, textAlign: 'right' }}>
+                                        {res.count}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p style={{ color: '#999', padding: '20px 0', textAlign: 'center' }}>
+                        Belum ada data klik resource.
+                    </p>
+                )}
             </div>
 
             {/* Simple User Agent/Path Table could go here later */}
