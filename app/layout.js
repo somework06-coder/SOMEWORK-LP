@@ -57,10 +57,13 @@ export async function generateMetadata() {
   };
 }
 
+import PageViewTracker from "@/components/PageViewTracker";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="id" style={{ scrollBehavior: "smooth" }}>
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
+        <PageViewTracker />
         {children}
       </body>
     </html>

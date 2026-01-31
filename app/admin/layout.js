@@ -74,8 +74,9 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/admin/analytics", label: "Thread Analytic", icon: "📈" },
+    { href: "/admin/web-analytics", label: "Web Analytic", icon: "🌐" },
     { href: "/admin/resources", label: "Resources", icon: "📦" },
-    { href: "/admin/analytics", label: "Analytics", icon: "📈" },
     { href: "/admin/settings", label: "Settings", icon: "⚙️" },
   ];
 
