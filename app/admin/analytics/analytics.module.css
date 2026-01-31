@@ -1,0 +1,157 @@
+/* Main Grid Layout */
+.dashboardGrid {
+  display: grid;
+  gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  /* Force constraint */
+  overflow-x: hidden;
+  /* scorched earth */
+}
+
+/* Overview Cards Section */
+.overviewSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  /* Constraint */
+}
+
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  /* Constraint */
+}
+
+/* Prevent Grid Blowout */
+.overviewSection>*,
+.chartsSection>* {
+  min-width: 0;
+  max-width: 100%;
+  /* Constraint */
+}
+
+.chartContainer {
+  height: 250px;
+  width: 100%;
+  margin-top: 16px;
+  /* SUPER STRICT simple container */
+  display: block;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  /* Constraint */
+}
+
+/* Ensure no child can force width expansion */
+.chartsSection .card {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Header Controls */
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  /* Allow wrapping */
+}
+
+/* ... existing timeRangeSelector ... */
+
+/* Top Posts List */
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.postItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--background-alt);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  /* CRITICAL for flex child truncation */
+  box-sizing: border-box;
+}
+
+.postContent {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  flex: 1;
+  /* Take available space */
+  min-width: 0;
+  /* Allow shrinking below content size */
+  width: 0;
+  /* Force flex basis to 0 to respect min-width */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 16px;
+}
+
+.postMetrics {
+  display: flex;
+  gap: 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  /* Don't squash metrics */
+}
+
+.postMetric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .dashboardGrid {
+    gap: 16px;
+  }
+
+  .headerControls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .timeRangeSelector {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .overviewSection {
+    grid-template-columns: 1fr;
+  }
+
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ensure charts don't break layout on very small screens */
+  .chartContainer {
+    height: 220px;
+    width: 100%;
+    /* Reset to 100% to avoid overflow */
+    margin-left: 0;
+  }
+}

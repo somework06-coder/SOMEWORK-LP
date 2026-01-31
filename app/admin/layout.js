@@ -10,6 +10,8 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,6 +39,11 @@ export default function AdminLayout({ children }) {
 
     return () => subscription.unsubscribe();
   }, [pathname, router]);
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     await signOut();
@@ -68,15 +75,39 @@ export default function AdminLayout({ children }) {
   const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
     { href: "/admin/resources", label: "Resources", icon: "📦" },
+    { href: "/admin/analytics", label: "Analytics", icon: "📈" },
     { href: "/admin/settings", label: "Settings", icon: "⚙️" },
   ];
 
   return (
-    <div className="admin-layout">
-      <aside className="admin-sidebar">
+    <div className={`admin-layout ${isCollapsed ? 'collapsed-mode' : ''}`}>
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <button
+          className="menu-btn"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label="Toggle menu"
+        >
+          {isSidebarOpen ? '✕' : '☰'}
+        </button>
+        <span className="mobile-title">Somework Admin</span>
+      </div>
+
+      <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <h2>Somework</h2>
-          <span className="admin-badge">Admin</span>
+          {!isCollapsed && (
+            <>
+              <h2>Somework</h2>
+              <span className="admin-badge">Admin</span>
+            </>
+          )}
+          <button
+            className="collapse-btn"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? '➡' : '⬅'}
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -85,22 +116,30 @@ export default function AdminLayout({ children }) {
               key={item.href}
               href={item.href}
               className={`nav-item ${pathname === item.href ? "active" : ""}`}
+              title={isCollapsed ? item.label : ""}
             >
               <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
+              {!isCollapsed && <span className="nav-label">{item.label}</span>}
             </Link>
           ))}
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            <span className="user-email">{user?.email}</span>
-          </div>
-          <button onClick={handleLogout} className="btn-logout">
-            Logout
+          {!isCollapsed && (
+            <div className="user-info">
+              <span className="user-email">{user?.email}</span>
+            </div>
+          )}
+          <button onClick={handleLogout} className="btn-logout" title="Logout">
+            {isCollapsed ? '🚪' : 'Logout'}
           </button>
         </div>
       </aside>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+      )}
 
       <main className="admin-main">
         {children}
@@ -108,8 +147,37 @@ export default function AdminLayout({ children }) {
 
       <style jsx global>{`
         .admin-layout {
-          display: flex;
+          display: block; 
           min-height: 100vh;
+        }
+
+        .mobile-header {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          background: #111;
+          color: white;
+          align-items: center;
+          padding: 0 20px;
+          z-index: 90;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-btn {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          margin-right: 16px;
+        }
+
+        .mobile-title {
+          font-weight: 700;
+          font-size: 1.1rem;
         }
 
         .admin-sidebar {
@@ -122,6 +190,41 @@ export default function AdminLayout({ children }) {
           height: 100vh;
           left: 0;
           top: 0;
+          z-index: 100;
+          transition: width 0.3s ease, transform 0.3s ease;
+          overflow-x: hidden;
+        }
+
+        .admin-sidebar.collapsed {
+          width: 80px;
+        }
+
+        /* Collapse Button */
+        .collapse-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: auto; /* Push to right */
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .collapse-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 95;
         }
 
         .sidebar-header {
@@ -130,6 +233,18 @@ export default function AdminLayout({ children }) {
           display: flex;
           align-items: center;
           gap: 12px;
+          height: 80px; /* Fixed height for stability */
+          box-sizing: border-box;
+          justify-content: space-between; /* Space out title and button */
+        }
+        
+        .admin-sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 24px 0;
+        }
+        
+        .admin-sidebar.collapsed .collapse-btn {
+            margin: 0;
         }
 
         .sidebar-header h2 {
@@ -137,6 +252,7 @@ export default function AdminLayout({ children }) {
           font-weight: 700;
           margin: 0;
           font-family: var(--font-heading);
+          white-space: nowrap;
         }
 
         .admin-badge {
@@ -168,6 +284,13 @@ export default function AdminLayout({ children }) {
           transition: all 0.15s ease;
           font-size: 0.95rem;
           font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        
+        .admin-sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 14px 0;
         }
 
         .nav-item:hover {
@@ -225,11 +348,61 @@ export default function AdminLayout({ children }) {
         }
 
         .admin-main {
-          flex: 1;
           margin-left: 260px;
           padding: 32px 40px;
           background: #f5f5f5;
           min-height: 100vh;
+          /* STRICT WIDTH CONTROL */
+          width: calc(100% - 260px); 
+          max-width: calc(100% - 260px);
+          overflow-x: hidden;
+          transition: margin-left 0.3s ease, width 0.3s ease, max-width 0.3s ease;
+        }
+        
+        .collapsed-mode .admin-main {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+            max-width: calc(100% - 80px);
+        }
+
+        @media (max-width: 768px) {
+          .admin-layout.collapsed-mode .admin-main {
+              margin-left: 0; /* Reset on mobile */
+              width: 100%;
+              max-width: 100%;
+          }
+        
+          .admin-layout {
+            flex-direction: column;
+          }
+
+          .mobile-header {
+            display: flex;
+          }
+
+          .admin-sidebar {
+            transform: translateX(-100%);
+            width: 260px !important; /* Force width on mobile */
+          }
+
+          .admin-sidebar.open {
+            transform: translateX(0);
+          }
+          
+          .collapse-btn {
+            display: none; /* Hide collapse on mobile */
+          }
+
+          .sidebar-overlay {
+            display: block;
+          }
+
+          .admin-main {
+            margin-left: 0;
+            padding: 80px 20px 40px;
+            width: 100%;
+            max-width: 100%;
+          }
         }
       `}</style>
     </div>
