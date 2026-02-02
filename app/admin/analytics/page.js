@@ -128,7 +128,8 @@ export default function AnalyticsPage() {
                         id: post.id,
                         content: post.text || "(No text)",
                         views: post.views || 0,
-                        likes: post.likes || 0
+                        likes: post.likes || 0,
+                        timestamp: post.timestamp // Pass through timestamp
                     }))
                 });
 
@@ -278,7 +279,17 @@ export default function AnalyticsPage() {
                 <div className={styles.postsList}>
                     {stats.topPosts.map((post) => (
                         <div key={post.id} className={styles.postItem}>
-                            <div className={styles.postContent}>{post.content}</div>
+                            <div className={styles.postContent}>
+                                <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>
+                                    {post.timestamp ? new Date(post.timestamp).toLocaleString(undefined, {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) : ''}
+                                </div>
+                                {post.content}
+                            </div>
                             <div className={styles.postMetrics}>
                                 <div className={styles.postMetric}>👁️ {post.views.toLocaleString()}</div>
                                 <div className={styles.postMetric}>❤️ {post.likes.toLocaleString()}</div>
